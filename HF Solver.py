@@ -1,1 +1,0 @@
-# Solver de Hartree-Fock para átomos y moléculas.
