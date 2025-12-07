@@ -57,6 +57,21 @@ def gauss_p(r, alpha, A, l):
     """
     return  N_gauss(alpha, l) * (r[0] - A[0])**l[0] * (r[1] - A[1])**l[1] * (r[2] - A[2])**l[2] * np.exp(-alpha * r_A_2(r, A))
 
+def STO3G_1s(center):
+    """
+    Construye un orbital 1s en center y devuelve sus 3 gaussianas primitivas normalizadas.
+    
+    Args:
+        center (list): Centro del orbital 1s.
+    """
+    alphas = np.array([3.42525091, 0.62391373, 0.16885540])
+    coeffs  = np.array([0.15432897, 0.53532814, 0.44463454])
+    primit = []
+    
+    for alpha, dp in zip(alphas, coeffs):
+        primit.append((alpha, dp * N_gauss(alpha)))
+    
+    return np.array(center, dtype=float), primit
 
 def gauss_cont(r, A, alphas, coeffs, l):
     """
