@@ -1,5 +1,18 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
+
+
+
+basis = [
+   {
+      "coeff": ,
+      "alpha": [a1, a2, a3],
+      "center": np.array([x,y,z]),
+      "norm": N   # lo calculas con una función
+   },
+   ...
+]
+
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
 
@@ -12,6 +25,9 @@ class HartreeFockSolver:
             - max_iterations: Número máximo de iteraciones SCF.
             - convergence_threshold: Umbral de convergencia para la energía.
         """
+
+
+
     def make_density_matrix()
         """Construye la matriz de densidad a partir de las orbitales moleculares."""
     def build_fock_matrix()

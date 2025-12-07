@@ -52,13 +52,12 @@ def gauss_p(r, alpha, A, l):
     return  N(alpha, l) * (r[0] - A[0])**l[0] * (r[1] - A[1])**l[1] * (r[2] - A[2])**l[2] * np.exp(-alpha * r_A_2(r, A))
 
 
-def gauss_cont(r, alpha, A, alphas, coeffs, l):
+def gauss_cont(r, A, alphas, coeffs, l):
     """
     Devuelve la gaussiana contratada a partir de la primitiva.
     
     Args:
         r (list): Posición del electrón.
-        alpha: Coeficiente.
         A (list): Posición del centro de la gaussiana.
         alphas (list): Lista con los coeficientes alpha.
         coeffs (list): Lista con los coeficientes de contracción.
@@ -68,9 +67,16 @@ def gauss_cont(r, alpha, A, alphas, coeffs, l):
         gauss_c (list): Gaussiana contratada.
         phi (list): Lista con los valores de los coeficientes alpha, de contracción y de normalización.
     """
+    
     phi = []
+    gauss_c = 0
+
     for alpha, dp in zip(alphas, coeffs):
         gauss_c += dp * gauss_p(r, alpha, A, l)
-        phi.append(alpha, dp, N(alpha, l))
+        phi.append((alpha, dp, N(alpha, l), A))
 
-        return gauss_c, phi
+    return gauss_c, phi
+    
+gc, fi = gauss_cont(r, A, alphas, coeffs, l)
+
+print(fi)
