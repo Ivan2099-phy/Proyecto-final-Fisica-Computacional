@@ -165,30 +165,28 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
 # Así, las matrices de integrales se construyen como:
 # S_ij = <psi_i | psi_j> = Σ Σ c_pi * c_qj * <chi_p | chi_q>
 
-def build_overlap_matrix(psi_m, psi_n):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            S_pq = overlap_integral_analytical(a, A, b, B)
-            total += c_m * c_n * S_pq
-    return total    
-def build_kinetic_matrix(psi_m, psi_n):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            T_pq = kinetic_integral_analytical(a, A, b, B)
-            total += c_m * c_n * T_pq
-    return total
-def build_nuclear_attraction_matrix(psi_m, psi_n, nuclei):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            V_pq_total = 0.0
-            for (ZA, RA) in nuclei:  # Recorre los núcleos
-                V_pq = nuclear_electron_integral_analytical(a, A, b, B, ZA, RA)
-                V_pq_total += V_pq
-            total += c_m * c_n * V_pq_total
-    return total
+def build_one_electron_matrices(basis, centers, Zlist):
+    n = len(basis)
+    S = np.zeros((n,n))
+    T = np.zeros((n,n))
+    V = np.zeros((n,n))
+
+    for mu in range(n):
+        A, prims_mu = basis[mu]
+        for nu in range(n):
+            B, prims_nu = basis[nu]
+
+            valS = valT = valV = 0.0
+            for (a, ca) in prims_mu:
+                for (b, cb) in prims_nu:
+                    valS += ca*cb * overlap_integral_analytical(a, A, b, B)
+                    valT += ca*cb * kinetic_integral_analytical(a, A, b, B)
+                    for C, Z in zip(centers, Zlist):
+                        valV += ca*cb * nuclear_electron_integral_analytical(a, A, b, B, C, Z)
+            S[mu,nu] = valS
+            T[mu,nu] = valT
+            V[mu,nu] = valV
+    return S, T, V
 
 def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
     val = 0.0
@@ -196,7 +194,7 @@ def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
         for (b, cb) in prims_nu:
             for (c, cc) in prims_lam:
                 for (d, cd) in prims_sig:
-                    val += ca * cb * cc * cd * eri_ssss(a, A, b, B, c, Cc, d, D)
+                    val += ca * cb * cc * cd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
     return val
 
 def build_electron_interact_tensor(basis):
