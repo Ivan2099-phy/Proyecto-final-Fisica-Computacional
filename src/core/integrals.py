@@ -18,6 +18,6 @@ def simpson_3d(f, rmin, rmax, n=100):
     F = f(X, Y, Z)
     # Integra cada dimensión
     integral_x = simpson(F, x, axis=0)
-    integral_xy = simpson(integral_x, y, axis=1)
-    integral_xyz = simpson(integral_xy, z, axis=2)
+    integral_xy = simpson(integral_x, y, axis=0)
+    integral_xyz = simpson(integral_xy, z, axis=0)
     return integral_xyz
