@@ -36,6 +36,12 @@ def r_A_2(r, A):
     """
     return (r[0] - A[0])**2 + (r[1] - A[1])**2 + (r[2] - A[2])**2
 
+def overlapss(a, A, b, B):
+    """
+    Calcula el solapamiento entre dos gaussianas primitivas de tipo s.
+    """
+    return (np.pi/(a+b))**1.5 * np.exp(-a*b/(a+b)*r_A_2(A, B))
+
 def gauss_p(r, alpha, A, l):
     """
     Devuelve la gaussiana primitiva.
