@@ -40,6 +40,21 @@ class HartreeFockSolver:
         X_matrix = Q_matrix * Lambda_inv * Q_matrix.transpose() # S^{-1/2} = Q * Lambda^{-1/2} * Q^T
         
         self.X = np.array([row[:] for row in X_matrix.data]) # Convertir de Matrix a numpy array
+    
+    def build_Fock(self, P):
+        """
+        Construye la matriz de Fock a partir de la matriz de densidad P.
+        """
+        n = self.H.shape[0] # Número de orbitales base
+        F = self.H.copy() # Iniciar Fock con la matriz H
+        for p in range(n):
+            for q in range(n):
+                G_pq = 0.0 # Inicializar la contribución pq
+                for r in range(n):
+                    for s in range(n):
+                        G_pq += P[r,s] * (self.G[p, q, r, s] - 0.5 * self.G[p, s, r, q]) 
+                F[p, q] += G_pq # Añadir la contribución a la matriz de Fock
+        return F
 
 
     def make_density_matrix()
