@@ -73,6 +73,26 @@ def STO3G_1s(center):
     
     return np.array(center, dtype=float), primit
 
+def normal_cont(center_primits):
+    """
+    Normalizar una función contraída.
+    """
+    center, primit = center_primits
+
+    n = len(primit)
+    S_self = 0.0
+    for i in range(n):
+        ai, ci = primit[i]
+        for j in range(n):
+            aj, cj = primit[j]
+            S_ij = overlapss(ai, center, aj, center)
+            S_self += ci * cj * S_ij
+    if S_self <= 0:
+        return (center, primit)
+    norm = S_self**0.5
+    prims_normed = [(a, c / norm) for (a,c) in primit]
+    return (center, prims_normed)
+
 def gauss_cont(r, A, alphas, coeffs, l):
     """
     Devuelve la gaussiana contratada a partir de la primitiva.
@@ -97,7 +117,3 @@ def gauss_cont(r, A, alphas, coeffs, l):
         phi.append((alpha, dp, N_gauss(alpha, l), A))
 
     return gauss_c, phi
-    
-gc, fi = gauss_cont(r, A, alphas, coeffs, l)
-
-print(fi)
