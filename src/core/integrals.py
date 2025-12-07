@@ -1,6 +1,8 @@
 # Integrales necesarios para cálculos de HF
 import numpy as np
 from scipy.integrate import simpson
+from math import pi, sqrt, exp
+from scipy.special import erf
 
 # Función para calcular integrales unidimensionales y tridimensionales con la regla de Simpson
 def simpson_1d (f, a, b, n=1000):
@@ -23,6 +25,13 @@ def simpson_3d(f, rmin, rmax, n=100):
     integral_xyz = simpson(integral_xy, z, axis=0)
     return integral_xyz
 
+# Distancias
+def distance2 (A, B):
+    A = np.array(A)
+    B = np.array(B)
+    d = A - B
+    return np.dot(d, d)
+
 # Bases gaussianas
 def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     """
@@ -30,6 +39,12 @@ def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     g(r) = exp(-alpha * |r - A|^2)
     """
     return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2))
+
+# Producto de dos gaussianas
+def gaussian_product(alpha_i, Ai, alpha_j, Aj):
+    p = alpha_i + alpha_j
+    P = (alpha_i * np.array(Ai) + alpha_j * np.array(Aj)) / p
+    return p, P
 
 #============================================================================
 # Integrales necesarias para Hartree-Fock
@@ -50,7 +65,7 @@ def overlap_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
 def laplacian_gaussian_1s(alpha_j, Aj, X, Y, Z):
     """
     Calcula el laplaciano de una función base gaussiana 1s.
-    Laplcaciano(exp(-apha* x**2))  = (4*alpha^2 * |r - A|^2 - 6*alpha) * g(r)
+    Laplaciano(exp(-apha* x**2))  = (4*alpha^2 * |r - A|^2 - 6*alpha) * (-apha* x**2)
     """
     (Ax, Ay, Az) = Aj
     r2 = (X - Ax)**2 + (Y - Ay)**2 + (Z - Az)**2
@@ -77,3 +92,6 @@ def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=1
         rA = np.sqrt((X - Rx)**2 + (Y - Ry)**2 + (Z - Rz)**2)
         return chi_i * (-ZA / rA) * chi_j
     return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
+
+# Integral de repulsión electrónica entre dos pares de funciones base
+# Integral doble de: chi_p(r1) chi_q(r1) 1/|r1 - r2| chi_r(r2) chi_s(r2) dr1 dr2
