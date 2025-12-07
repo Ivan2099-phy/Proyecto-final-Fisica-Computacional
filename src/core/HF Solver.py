@@ -1,23 +1,17 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
 
-
-
-basis = [
-   {
-      "coeff": ,
-      "alpha": [a1, a2, a3],
-      "center": np.array([x,y,z]),
-      "norm": N   # lo calculas con una función
-   },
-   ...
-]
+from jacobi_eigen import jacobi_eigen
+from matrix import Matrix
+import numpy as np
 
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
 
-    def _init_():
+    def _init_(self, S, H, G, n_electrons, E_nuc=0.0):
         """
+        Definimos la clase HartreeFockSolver para sistemas moleculares.
+
         Parametros:
             - basis_set: Conjunto de bases moleculares conocidas.
             - integrals: Integrales necesarias para cálculos de HF.
@@ -25,7 +19,27 @@ class HartreeFockSolver:
             - max_iterations: Número máximo de iteraciones SCF.
             - convergence_threshold: Umbral de convergencia para la energía.
         """
+        S_matrix = Matrix(S.tolist()) # Convertir a Matrix (clase implementada en el curso)
 
+        self.S = S
+        self.H = H
+        self.G = G
+        self.n_e = n_electrons
+        self.E_nuc = E_nuc
+
+        D_matrix, Q_matrix = jacobi_eigen(S_matrix) # D matriz de autovalores, Q matriz de autovectores
+
+        eigvals = np.array([D_matrix.data[i][i] for i in range(S_matrix.rows)]) # Extraer autovalores de D
+        eigvecs = np.array([row[:] for row in Q_matrix.data]) # Extraer autovectores de Q
+        
+        Lambda_inv = Matrix([
+                [(D_matrix.data[i][i]**(-0.5)) if i == j else 0.0
+                for j in range(D_matrix.rows)]
+                for i in range(D_matrix.rows)])
+        
+        X_matrix = Q_matrix * Lambda_inv * Q_matrix.transpose() # S^{-1/2} = Q * Lambda^{-1/2} * Q^T
+        
+        self.X = np.array([row[:] for row in X_matrix.data]) # Convertir de Matrix a numpy array
 
 
     def make_density_matrix()
