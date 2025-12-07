@@ -13,6 +13,7 @@ class HartreeFockSolver:
         Definimos la clase HartreeFockSolver para sistemas moleculares.
 
         Parametros:
+        -----------
             - basis_set: Conjunto de bases moleculares conocidas.
             - integrals: Integrales necesarias para cálculos de HF.
             - n_electrons: Número de electrones en el sistema.
