@@ -65,3 +65,15 @@ def kinetic_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
         lap_chi_j = laplacian_gaussian_1s(alpha_j, Aj, X, Y, Z)
         return chi_i * (-0.5 * lap_chi_j)
     return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
+
+# Integral de atracción nuclear V_ij = <chi_i | - Z_A / |r - R_A| | chi_j>
+def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=10, n=100):
+    """Calcula la integral de atracción nuclear entre dos funciones base."""
+    (Ax, Ay, Az), (Bx, By, Bz) = Ai,Aj  # Coordenadas de los centros de las funciones base
+    (Rx, Ry, Rz) = RA  # Coordenadas del núcleo A
+    def integrand(X,Y,Z):
+        chi_i = gaussian_1s(X,Y,Z,alpha_i, Ax, Ay, Az)
+        chi_j = gaussian_1s(X,Y,Z,alpha_j, Bx, By, Bz)
+        rA = np.sqrt((X - Rx)**2 + (Y - Ry)**2 + (Z - Rz)**2)
+        return chi_i * (-ZA / rA) * chi_j
+    return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
