@@ -33,13 +33,20 @@ def distance2 (A, B):
     return np.dot(d, d)
 
 # Bases gaussianas
+
+#Norma de las bases
+def gaussian_norm(alpha):
+    """Calcula el factor de normalización para una función base gaussiana 1s."""
+    N = (2*alpha/pi)**(3/4)
+    return N
+
 def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     """
     Calcula el valor de una función base gaussiana para 1s en el punto r.Normalizada.
     g(r) = N*exp(-alpha * |r - A|^2)
     N = (2*alpha/pi)^(3/4)
     """
-    N = (2*alpha/pi)**(3/4)
+    N = gaussian_norm(alpha)
     return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2)) * N
 
 # Producto de dos gaussianas
@@ -182,12 +189,26 @@ def build_nuclear_attraction_matrix(psi_m, psi_n, nuclei):
                 V_pq_total += V_pq
             total += c_m * c_n * V_pq_total
     return total
-def build_electron_repulsion_tensor(psi_list):
-    total = 0.0
-    for (a,c_m, n_m, A) in psi_m:
-        for (b,c_n, n_n, B) in psi_n:
-            for (c,c_r, n_r, C) in psi_r:
-                for (d,c_s, n_s, D) in psi_s:
-                    ERI_pqrs = electron_repulsion_integral_analytical(a, A, b, B, c, C, d, D)
-                    total += c_m * c_n * c_r * c_s * ERI_pqrs
-    return total
+
+def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
+    val = 0.0
+    for (a, ca) in prims_mu:
+        for (b, cb) in prims_nu:
+            for (c, cc) in prims_lam:
+                for (d, cd) in prims_sig:
+                    val += ca * cb * cc * cd * eri_ssss(a, A, b, B, c, Cc, d, D)
+    return val
+
+def build_electron_interact_tensor(basis):
+    n = len(basis)
+    eri = np.zeros((n, n, n, n))
+    for mu in range(n):
+        A, prims_mu = basis[mu]
+        for nu in range(n):
+            B, prims_nu = basis[nu]
+            for lam in range(n):
+                Cc, prims_lam = basis[lam]
+                for sig in range(n):
+                    D, prims_sig = basis[sig]
+                    eri[mu, nu, lam, sig] = _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D)
+    return eri
