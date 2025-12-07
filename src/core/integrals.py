@@ -3,6 +3,7 @@ import numpy as np
 from scipy.integrate import simpson
 from math import pi, sqrt, exp
 from scipy.special import erf
+from itertools import product
 
 # Función para calcular integrales unidimensionales y tridimensionales con la regla de Simpson
 def simpson_1d (f, a, b, n=1000):
@@ -33,13 +34,20 @@ def distance2 (A, B):
     return np.dot(d, d)
 
 # Bases gaussianas
+
+#Norma de las bases
+def gaussian_norm(alpha):
+    """Calcula el factor de normalización para una función base gaussiana 1s."""
+    N = (2*alpha/pi)**(3/4)
+    return N
+
 def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     """
     Calcula el valor de una función base gaussiana para 1s en el punto r.Normalizada.
     g(r) = N*exp(-alpha * |r - A|^2)
     N = (2*alpha/pi)^(3/4)
     """
-    N = (2*alpha/pi)**(3/4)
+    N = gaussian_norm(alpha)
     return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2)) * N
 
 # Producto de dos gaussianas
@@ -48,6 +56,14 @@ def gaussian_product_coef(alpha_i, Ai, alpha_j, Aj):
     p = alpha_i + alpha_j
     P = (alpha_i * np.array(Ai) + alpha_j * np.array(Aj)) / p
     return p, P
+
+# F0 función auxiliar para integrales
+def Function_f0(t):
+    """Función auxiliar F0(t) usada en integrales electrónicas."""
+    if t > 1e-10:
+        return 0.5 * sqrt(pi / t) * erf(sqrt(t))
+    else:
+        return 1.0  # Aproximación para t cerca de 0
 
 #============================================================================
 # Integrales necesarias para Hartree-Fock
@@ -124,10 +140,7 @@ def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
     p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
     RP2 = distance2(P, RA)
     t = p * RP2
-    if t > 1e-10:
-        F0 = 0.5 * sqrt(pi / t) * erf(sqrt(t))
-    else:
-        F0 = 1.0  
+    F0 = Function_f0(t)
     V_ij = -2 * pi * ZA / p * F0 * S_ij
     return V_ij
 
@@ -140,10 +153,7 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
     q, Q = gaussian_product_coef(alpha_r, Ar, alpha_s, As)
     RP2 = distance2(P, Q)
     t = (p * q) / (p + q) * RP2
-    if t > 1e-10:
-        F0 = 0.5 * sqrt(pi / t) * erf(sqrt(t))
-    else:
-        F0 = 1.0  
+    F0 = Function_f0(t)
     S_pq = overlap_integral_analytical(alpha_p, Ap, alpha_q, Aq)
     S_rs = overlap_integral_analytical(alpha_r, Ar, alpha_s, As)
     ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * S_pq * S_rs
@@ -158,36 +168,61 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
 # Así, las matrices de integrales se construyen como:
 # S_ij = <psi_i | psi_j> = Σ Σ c_pi * c_qj * <chi_p | chi_q>
 
-def build_overlap_matrix(psi_m, psi_n):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            S_pq = overlap_integral_analytical(a, A, b, B)
-            total += c_m * c_n * S_pq
-    return total    
-def build_kinetic_matrix(psi_m, psi_n):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            T_pq = kinetic_integral_analytical(a, A, b, B)
-            total += c_m * c_n * T_pq
-    return total
-def build_nuclear_attraction_matrix(psi_m, psi_n, nuclei):
-    total = 0.0
-    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
-        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
-            V_pq_total = 0.0
-            for (ZA, RA) in nuclei:  # Recorre los núcleos
-                V_pq = nuclear_electron_integral_analytical(a, A, b, B, ZA, RA)
-                V_pq_total += V_pq
-            total += c_m * c_n * V_pq_total
-    return total
-def build_electron_repulsion_tensor(psi_list):
-    total = 0.0
-    for (a,c_m, n_m, A) in psi_m:
-        for (b,c_n, n_n, B) in psi_n:
-            for (c,c_r, n_r, C) in psi_r:
-                for (d,c_s, n_s, D) in psi_s:
-                    ERI_pqrs = electron_repulsion_integral_analytical(a, A, b, B, c, C, d, D)
-                    total += c_m * c_n * c_r * c_s * ERI_pqrs
-    return total
+def _compute_contribution(prims_mu, prims_nu, A, B, centers=None, Zlist=None):
+    """Calcula las contribuciones para S, T y V."""
+    valS = valT = valV = 0.0
+    
+    for (a, ca), (b, cb) in product(prims_mu, prims_nu):
+        coeff_product = ca * cb
+        valS += coeff_product * overlap_integral_analytical(a, A, b, B)
+        valT += coeff_product * kinetic_integral_analytical(a, A, b, B)
+        
+        if centers is not None and Zlist is not None:
+            for C, Z in zip(centers, Zlist):
+                valV += coeff_product * nuclear_electron_integral_analytical(a, A, b, B, C, Z)
+    
+    return valS, valT, valV
+
+def build_one_electron_matrices(basis, centers, Zlist):
+    """Construye las matrices de solapamiento, energía cinética y potencial nuclear."""
+    n = len(basis)
+    S = np.zeros((n, n))
+    T = np.zeros((n, n))
+    V = np.zeros((n, n))
+    
+    for mu in range(n):
+        A, prims_mu = basis[mu]
+        for nu in range(mu, n):  # S, T y V son simétricas
+            B, prims_nu = basis[nu]
+            
+            valS, valT, valV = _compute_contribution(prims_mu, prims_nu, A, B, centers, Zlist)
+            
+            # Asigna valores a ambas mitades de la matriz
+            S[mu, nu] = S[nu, mu] = valS
+            T[mu, nu] = T[nu, mu] = valT
+            V[mu, nu] = V[nu, mu] = valV
+    
+    return S, T, V
+
+def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
+    val = 0.0
+    for (a, ca) in prims_mu:
+        for (b, cb) in prims_nu:
+            for (c, cc) in prims_lam:
+                for (d, cd) in prims_sig:
+                    val += ca * cb * cc * cd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
+    return val
+
+def build_electron_interact_tensor(basis):
+    n = len(basis)
+    eri = np.zeros((n, n, n, n))
+    for mu in range(n):
+        A, prims_mu = basis[mu]
+        for nu in range(n):
+            B, prims_nu = basis[nu]
+            for lam in range(n):
+                Cc, prims_lam = basis[lam]
+                for sig in range(n):
+                    D, prims_sig = basis[sig]
+                    eri[mu, nu, lam, sig] = _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D)
+    return eri
