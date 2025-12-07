@@ -35,10 +35,12 @@ def distance2 (A, B):
 # Bases gaussianas
 def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     """
-    Calcula el valor de una función base gaussiana para 1s en el punto r.
-    g(r) = exp(-alpha * |r - A|^2)
+    Calcula el valor de una función base gaussiana para 1s en el punto r.Normalizada.
+    g(r) = N*exp(-alpha * |r - A|^2)
+    N = (2*alpha/pi)^(3/4)
     """
-    return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2))
+    N = (2*alpha/pi)**(3/4)
+    return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2)) * N
 
 # Producto de dos gaussianas
 def gaussian_product(alpha_i, Ai, alpha_j, Aj):
@@ -51,6 +53,8 @@ def gaussian_product(alpha_i, Ai, alpha_j, Aj):
 #============================================================================
 
 # Integral de solapamiento S_ij = <chi_i | chi_j>
+# Para dos gausianas esta integral se reduce a una forma analítica:
+# S_ij = (pi / (alpha_i + alpha_j))^(3/2) * exp(- (alpha_i * alpha_j) / (alpha_i + alpha_j) * |Ai - Aj|^2)
 def overlap_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
     """Calcula la integral de solapamiento entre dos funciones base."""
     (Ax, Ay, Az), (Bx, By, Bz) = Ai,Aj  # Coordenadas de los centros de las funciones base
@@ -59,6 +63,13 @@ def overlap_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
         chi_j = gaussian_1s(X,Y,Z,alpha_j, Bx, By, Bz)
         return chi_i * chi_j
     return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
+
+def overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj):
+    """Calcula la integral de solapamiento entre dos funciones base usando la forma analítica."""
+    p, P = gaussian_product(alpha_i, Ai, alpha_j, Aj)
+    Rab2 = distance2(Ai, Aj)
+    S_ij = (pi / p)**(3/2) * exp(- ((alpha_i * alpha_j) / p ) * Rab2)
+    return S_ij
 
 # Integral cinética T_ij = <chi_i | -1/2 ∇^2 | chi_j>
 # Laplaciano de la función base gaussiana 1s
