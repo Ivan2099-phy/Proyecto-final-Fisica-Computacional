@@ -1,1 +1,0 @@
-# Test del algoritmo Hartree-Fock para la molécula de H2
