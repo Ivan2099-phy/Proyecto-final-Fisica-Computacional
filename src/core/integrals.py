@@ -43,7 +43,8 @@ def gaussian_1s(x,y,z,alpha, Ax, Ay, Az):
     return np.exp(-alpha * ((x - Ax)**2 + (y - Ay)**2 + (z - Az)**2)) * N
 
 # Producto de dos gaussianas
-def gaussian_product(alpha_i, Ai, alpha_j, Aj):
+def gaussian_product_coef(alpha_i, Ai, alpha_j, Aj):
+    """Calcula los coeficientes del producto de dos gaussianas."""
     p = alpha_i + alpha_j
     P = (alpha_i * np.array(Ai) + alpha_j * np.array(Aj)) / p
     return p, P
@@ -66,13 +67,15 @@ def overlap_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
 
 def overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj):
     """Calcula la integral de solapamiento entre dos funciones base usando la forma analítica."""
-    p, P = gaussian_product(alpha_i, Ai, alpha_j, Aj)
+    p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
     Rab2 = distance2(Ai, Aj)
     S_ij = (pi / p)**(3/2) * exp(- ((alpha_i * alpha_j) / p ) * Rab2)
     return S_ij
 
 # Integral cinética T_ij = <chi_i | -1/2 ∇^2 | chi_j>
 # Laplaciano de la función base gaussiana 1s
+# De manera analítica la integral cinética queda:
+# T_ij = alpha_i * alpha_j / (alpha_i + alpha_j) * (3 - 2 * alpha_i * alpha_j / (alpha_i + alpha_j) * |Ai - Aj|^2) * S_ij
 def laplacian_gaussian_1s(alpha_j, Aj, X, Y, Z):
     """
     Calcula el laplaciano de una función base gaussiana 1s.
@@ -91,6 +94,14 @@ def kinetic_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
         lap_chi_j = laplacian_gaussian_1s(alpha_j, Aj, X, Y, Z)
         return chi_i * (-0.5 * lap_chi_j)
     return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
+
+def kinetic_integral_analytical(alpha_i, Ai, alpha_j, Aj):
+    """Calcula la integral cinética entre dos funciones base usando la forma analítica."""
+    S_ij = overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj)
+    p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
+    Rab2 = distance2(Ai, Aj)
+    T_ij = (alpha_i * alpha_j / p) * (3 - (2 * alpha_i * alpha_j / p) * Rab2) * S_ij
+    return T_ij
 
 # Integral de atracción nuclear V_ij = <chi_i | - Z_A / |r - R_A| | chi_j>
 def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=10, n=100):
