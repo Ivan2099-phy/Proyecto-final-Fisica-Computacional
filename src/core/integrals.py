@@ -149,3 +149,45 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
     ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * S_pq * S_rs
     return ERI
 
+# ============================================================================
+# Construción de matrices de integrales
+# ============================================================================
+
+# Se construyen los nuevos estados en términos de las bases moleculares conocidas
+# psi = Σ c_i * chi_i, con chi_i las funciones base gaussianas 1s
+# Así, las matrices de integrales se construyen como:
+# S_ij = <psi_i | psi_j> = Σ Σ c_pi * c_qj * <chi_p | chi_q>
+
+def build_overlap_matrix(psi_m, psi_n):
+    total = 0.0
+    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
+        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
+            S_pq = overlap_integral_analytical(a, A, b, B)
+            total += c_m * c_n * S_pq
+    return total    
+def build_kinetic_matrix(psi_m, psi_n):
+    total = 0.0
+    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
+        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
+            T_pq = kinetic_integral_analytical(a, A, b, B)
+            total += c_m * c_n * T_pq
+    return total
+def build_nuclear_attraction_matrix(psi_m, psi_n, nuclei):
+    total = 0.0
+    for (a,c_m, n_m,A) in psi_m:  # Recorre las bases en psi_m
+        for (b,c_n, n_n,B) in psi_n:  # Recorre las bases en psi_n
+            V_pq_total = 0.0
+            for (ZA, RA) in nuclei:  # Recorre los núcleos
+                V_pq = nuclear_electron_integral_analytical(a, A, b, B, ZA, RA)
+                V_pq_total += V_pq
+            total += c_m * c_n * V_pq_total
+    return total
+def build_electron_repulsion_tensor(psi_list):
+    total = 0.0
+    for (a,c_m, n_m, A) in psi_m:
+        for (b,c_n, n_n, B) in psi_n:
+            for (c,c_r, n_r, C) in psi_r:
+                for (d,c_s, n_s, D) in psi_s:
+                    ERI_pqrs = electron_repulsion_integral_analytical(a, A, b, B, c, C, d, D)
+                    total += c_m * c_n * c_r * c_s * ERI_pqrs
+    return total
