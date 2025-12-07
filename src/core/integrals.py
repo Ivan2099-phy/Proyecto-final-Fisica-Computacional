@@ -58,7 +58,7 @@ def gaussian_product_coef(alpha_i, Ai, alpha_j, Aj):
     return p, P
 
 # F0 función auxiliar para integrales
-def F0(t):
+def Function_f0(t):
     """Función auxiliar F0(t) usada en integrales electrónicas."""
     if t > 1e-10:
         return 0.5 * sqrt(pi / t) * erf(sqrt(t))
@@ -140,7 +140,7 @@ def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
     p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
     RP2 = distance2(P, RA)
     t = p * RP2
-    F0 = F0(t)
+    F0 = Function_f0(t)
     V_ij = -2 * pi * ZA / p * F0 * S_ij
     return V_ij
 
@@ -153,7 +153,7 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
     q, Q = gaussian_product_coef(alpha_r, Ar, alpha_s, As)
     RP2 = distance2(P, Q)
     t = (p * q) / (p + q) * RP2
-    F0 = F0(t)
+    F0 = Function_f0(t)
     S_pq = overlap_integral_analytical(alpha_p, Ap, alpha_q, Aq)
     S_rs = overlap_integral_analytical(alpha_r, Ar, alpha_s, As)
     ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * S_pq * S_rs
