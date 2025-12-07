@@ -133,3 +133,19 @@ def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
 
 # Integral de repulsión electrónica entre dos pares de funciones base
 # Integral doble de: chi_p(r1) chi_q(r1) 1/|r1 - r2| chi_r(r2) chi_s(r2) dr1 dr2
+# Se puede obtener analíticamente:
+def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar, alpha_s, As):
+    """Calcula la integral de repulsión electrónica entre cuatro funciones base usando la forma analítica."""
+    p, P = gaussian_product_coef(alpha_p, Ap, alpha_q, Aq)
+    q, Q = gaussian_product_coef(alpha_r, Ar, alpha_s, As)
+    RP2 = distance2(P, Q)
+    t = (p * q) / (p + q) * RP2
+    if t > 1e-10:
+        F0 = 0.5 * sqrt(pi / t) * erf(sqrt(t))
+    else:
+        F0 = 1.0  
+    S_pq = overlap_integral_analytical(alpha_p, Ap, alpha_q, Aq)
+    S_rs = overlap_integral_analytical(alpha_r, Ar, alpha_s, As)
+    ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * S_pq * S_rs
+    return ERI
+
