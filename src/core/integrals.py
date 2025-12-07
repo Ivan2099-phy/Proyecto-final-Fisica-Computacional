@@ -104,6 +104,9 @@ def kinetic_integral_analytical(alpha_i, Ai, alpha_j, Aj):
     return T_ij
 
 # Integral de atracción nuclear V_ij = <chi_i | - Z_A / |r - R_A| | chi_j>
+# Se puede obtener analíticamente usando la función de error erf:
+# V_ij = -2 * pi * Z_A/ (alpha_i + alpha_j) * F0 ( (alpha_i + alpha_j) * |P-R_A|^2 ) * S_ij
+# donde F0(t) = 0.5 * sqrt(pi / t) * erf(sqrt(t))  para t > 0
 def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=10, n=100):
     """Calcula la integral de atracción nuclear entre dos funciones base."""
     (Ax, Ay, Az), (Bx, By, Bz) = Ai,Aj  # Coordenadas de los centros de las funciones base
@@ -114,6 +117,19 @@ def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=1
         rA = np.sqrt((X - Rx)**2 + (Y - Ry)**2 + (Z - Rz)**2)
         return chi_i * (-ZA / rA) * chi_j
     return simpson_3d(integrand, rmin=rmin, rmax=rmax, n=n)
+
+def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
+    """Calcula la integral de atracción nuclear entre dos funciones base usando la forma analítica."""
+    S_ij = overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj)
+    p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
+    RP2 = distance2(P, RA)
+    t = p * RP2
+    if t > 1e-10:
+        F0 = 0.5 * sqrt(pi / t) * erf(sqrt(t))
+    else:
+        F0 = 1.0  
+    V_ij = -2 * pi * ZA / p * F0 * S_ij
+    return V_ij
 
 # Integral de repulsión electrónica entre dos pares de funciones base
 # Integral doble de: chi_p(r1) chi_q(r1) 1/|r1 - r2| chi_r(r2) chi_s(r2) dr1 dr2
