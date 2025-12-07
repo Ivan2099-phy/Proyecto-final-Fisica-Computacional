@@ -2,7 +2,7 @@
 # Ciclo principal de SCF y construcción de matrices Fock.
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
-
+ 
     def _init_():
         """
         Parametros:
