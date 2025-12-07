@@ -3,6 +3,7 @@ import numpy as np
 from scipy.integrate import simpson
 from math import pi, sqrt, exp
 from scipy.special import erf
+from itertools import product
 
 # Función para calcular integrales unidimensionales y tridimensionales con la regla de Simpson
 def simpson_1d (f, a, b, n=1000):
@@ -165,27 +166,40 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
 # Así, las matrices de integrales se construyen como:
 # S_ij = <psi_i | psi_j> = Σ Σ c_pi * c_qj * <chi_p | chi_q>
 
-def build_one_electron_matrices(basis, centers, Zlist):
-    n = len(basis)
-    S = np.zeros((n,n))
-    T = np.zeros((n,n))
-    V = np.zeros((n,n))
+def _compute_contribution(prims_mu, prims_nu, A, B, centers=None, Zlist=None):
+    """Calcula las contribuciones para S, T y V."""
+    valS = valT = valV = 0.0
+    
+    for (a, ca), (b, cb) in product(prims_mu, prims_nu):
+        coeff_product = ca * cb
+        valS += coeff_product * overlap_integral_analytical(a, A, b, B)
+        valT += coeff_product * kinetic_integral_analytical(a, A, b, B)
+        
+        if centers is not None and Zlist is not None:
+            for C, Z in zip(centers, Zlist):
+                valV += coeff_product * nuclear_electron_integral_analytical(a, A, b, B, C, Z)
+    
+    return valS, valT, valV
 
+def build_one_electron_matrices(basis, centers, Zlist):
+    """Construye las matrices de solapamiento, energía cinética y potencial nuclear."""
+    n = len(basis)
+    S = np.zeros((n, n))
+    T = np.zeros((n, n))
+    V = np.zeros((n, n))
+    
     for mu in range(n):
         A, prims_mu = basis[mu]
-        for nu in range(n):
+        for nu in range(mu, n):  # S, T y V son simétricas
             B, prims_nu = basis[nu]
-
-            valS = valT = valV = 0.0
-            for (a, ca) in prims_mu:
-                for (b, cb) in prims_nu:
-                    valS += ca*cb * overlap_integral_analytical(a, A, b, B)
-                    valT += ca*cb * kinetic_integral_analytical(a, A, b, B)
-                    for C, Z in zip(centers, Zlist):
-                        valV += ca*cb * nuclear_electron_integral_analytical(a, A, b, B, C, Z)
-            S[mu,nu] = valS
-            T[mu,nu] = valT
-            V[mu,nu] = valV
+            
+            valS, valT, valV = _compute_contribution(prims_mu, prims_nu, A, B, centers, Zlist)
+            
+            # Asigna valores a ambas mitades de la matriz
+            S[mu, nu] = S[nu, mu] = valS
+            T[mu, nu] = T[nu, mu] = valT
+            V[mu, nu] = V[nu, mu] = valV
+    
     return S, T, V
 
 def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
