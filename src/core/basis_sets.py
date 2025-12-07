@@ -12,7 +12,7 @@ r = [0, 0, 0] #[x, y, z]
 A = [0, 0, 0] #[Ax, Ay, Az]
 l = [0, 0, 0] #[lx, ly, lz]
 
-def N(alpha, l):
+def N_gauss(alpha, l):
     """
     Función de normalización.
 
@@ -34,7 +34,7 @@ def r_A_2(r, A):
         r (list): Posición del electrón en coordenadas x, y, z.
         A (list): Posición del centro de la gaussiana Ax, Ay, Az
     """
-    return (r[0] - A[0])**2 * (r[1] - A[1])**2 * (r[2] - A[2])**2
+    return (r[0] - A[0])**2 + (r[1] - A[1])**2 + (r[2] - A[2])**2
 
 def gauss_p(r, alpha, A, l):
     """
@@ -49,7 +49,7 @@ def gauss_p(r, alpha, A, l):
     Returns:
         Gaussiana primitiva evaluada.
     """
-    return  N(alpha, l) * (r[0] - A[0])**l[0] * (r[1] - A[1])**l[1] * (r[2] - A[2])**l[2] * np.exp(-alpha * r_A_2(r, A))
+    return  N_gauss(alpha, l) * (r[0] - A[0])**l[0] * (r[1] - A[1])**l[1] * (r[2] - A[2])**l[2] * np.exp(-alpha * r_A_2(r, A))
 
 
 def gauss_cont(r, A, alphas, coeffs, l):
@@ -73,7 +73,7 @@ def gauss_cont(r, A, alphas, coeffs, l):
 
     for alpha, dp in zip(alphas, coeffs):
         gauss_c += dp * gauss_p(r, alpha, A, l)
-        phi.append((alpha, dp, N(alpha, l), A))
+        phi.append((alpha, dp, N_gauss(alpha, l), A))
 
     return gauss_c, phi
     
