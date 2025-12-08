@@ -50,3 +50,28 @@ def run_atom_He(): # Átomo de helio
     print("E obtenido =", E)
     print("E esperado ≈", -2.807, "(ref)")
     print("Error =", abs(E + 2.807))
+
+def run_H2(R=1.4):
+    RA = np.array([-R/2, 0.0, 0.0]) # Posición del átomo A
+    RB = np.array([ R/2, 0.0, 0.0]) # Posición del átomo B
+
+    basis = [STO3G_1s(RA), STO3G_1s(RB)] # Base STO-3G para H2
+    basis = [normal_cont(b) for b in basis] # Reemplazar basics por su versión normalizada
+
+    centers = [RA, RB] # Centros de los átomos
+    Z = [1,1] # Números atómicos en lista
+
+    # Matrices
+    S,T,V = build_one_electron_matrices(basis, centers, Z) # solapamiento, cinética y potencial
+    Hcore = T + V   # Hamiltoniano: ciénica + potencial
+    G = build_electron_interact_tensor(basis) # Integrales de repulsión electrónica
+
+    E_nuc = 1.0/R 
+    HF = HartreeFockSolver(S, Hcore, G, n_electrons = 2, E_nuc = E_nuc)
+
+    E, eps, C, P = HF.scf_cycle()  # Energía, orbitales y matriz de densidad *
+
+    print("\n=== MOLÉCULA H2 (STO-3G, R=1.4 bohr) ===")
+    print("E obtenido =", E)
+    print("E esperado ≈ -1.1175 (ref)")
+    print("Error =", abs(E + 1.1175))
