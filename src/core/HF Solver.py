@@ -1,5 +1,9 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
+
+import numpy as np
+
+# Clase Hartree-Fock
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
  
