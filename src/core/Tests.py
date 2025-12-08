@@ -17,16 +17,15 @@ def run_atom_H(): # Àtomo de hidrógeno
     # Matrices
     S, T, V = build_one_electron_matrices(basis, centers, Z) # solapamiento, cinética y potencial
     Hcore = T + V # Hamiltoniano: ciénica + potencial
-    G = build_electron_interact_tensor(basis) # Integrales de repulsión electrónica
-
-    HF = HartreeFockSolver(S, Hcore, G, n_electrons=1, E_nuc=0.0)
-
-    E, eps, C, P = HF.scf_cycle() # Energía, orbitales y matriz de densidad *
+    
+    E = Hcore[0,0]
 
     print("\n=== ÁTOMO DE HIDRÓGENO (STO-3G) ===")
     print("E obtenido =", E)
     print("E esperado =", -0.466581, "(ref)")
     print("Error =", abs(E + 0.466581))
+
+    return E
 
 def run_atom_He(): # Átomo de helio
     R = np.array([0.0, 0.0, 0.0]) # Posición del átomo de helio
@@ -44,12 +43,14 @@ def run_atom_He(): # Átomo de helio
 
     HF = HartreeFockSolver(S, Hcore, G, n_electrons=2, E_nuc=0.0)
 
-    E, eps, C, P = HF.scf_cycle() # Energía, orbitales y matriz de densidad *
+    E, eps, C, P = HF.scf_cycle(verbose=True) # Energía, orbitales y matriz de densidad *
 
     print("\n=== ÁTOMO DE HELIO (STO-3G) ===")
     print("E obtenido =", E)
     print("E esperado ≈", -2.807, "(ref)")
     print("Error =", abs(E + 2.807))
+
+    return E, HF
 
 def run_H2(R=1.4):
     RA = np.array([-R/2, 0.0, 0.0]) # Posición del átomo A
@@ -69,12 +70,14 @@ def run_H2(R=1.4):
     E_nuc = 1.0/R 
     HF = HartreeFockSolver(S, Hcore, G, n_electrons = 2, E_nuc = E_nuc)
 
-    E, eps, C, P = HF.scf_cycle()  # Energía, orbitales y matriz de densidad *
+    E, eps, C, P = HF.scf_cycle(verbose=True)  # Energía, orbitales y matriz de densidad *
 
     print("\n=== MOLÉCULA H2 (STO-3G, R=1.4 bohr) ===")
     print("E obtenido =", E)
     print("E esperado ≈ -1.1175 (ref)")
     print("Error =", abs(E + 1.1175))
+
+    return E, HF
 
 # Mostar resultados de las pruebas
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
 
-from tabnanny import verbose
 import numpy as np
 
 # Clase Hartree-Fock
@@ -134,10 +133,10 @@ class HartreeFockSolver:
         self.densities = []
         self.iterations = 0
 
-        if verbose:
-            print(f"\nIniciando SCF para {self.n_electrons} electrones en {self.n_basis} bases")
-            print(f"{'It':>3} {'E_total':>16} {'ΔE':>16} {'ΔP':>16}")
-            print("-"*60)
+        #if verbose:
+        #    print(f"\nIniciando SCF para {self.n_electrons} electrones en {self.n_basis} bases")
+        #    print(f"{'It':>3} {'E_total':>16} {'ΔE':>16} {'ΔP':>16}")
+        #    print("-"*60)
     
         # 3: Ciclo SCF
         for iteration in range(max_iter):
@@ -162,8 +161,8 @@ class HartreeFockSolver:
             self.densities.append(dP)
             self.iterations = iteration
 
-            if verbose:
-                print(f"{iteration:3d} {E_tot:16.10f} {dE:16.10f} {dP:16.10f}")
+            #if verbose:
+            #    print(f"{iteration:3d} {E_tot:16.10f} {dE:16.10f} {dP:16.10f}")
             
             if abs(dE) < conv and dP < conv:
                 print(f"Convergencia alcanzada en {iteration+1} iteraciones.")
