@@ -40,10 +40,16 @@ class HartreeFockSolver:
             self.E_nuc = E_nuc
 
             D_matrix, Q_matrix = jacobi_eigen(S_matrix) # D matriz de autovalores, Q matriz de autovectores
-
-
-    def make_density_matrix():
-        """Construye la matriz de densidad a partir de las orbitales moleculares."""
+            eigvals = np.array([D_matrix.data[i][i] for i in range(S_matrix.rows)]) # Extraer autovalores de D
+            eigvecs = np.array([row[:] for row in Q_matrix.data]) # Extraer autovectores de Q
+            Lambda_inv = Matrix([
+                [(D_matrix.data[i][i]**(-0.5)) if i == j else 0.0
+                for j in range(D_matrix.rows)]
+                for i in range(D_matrix.rows)])
+            X_matrix = Q_matrix * Lambda_inv * Q_matrix.transpose() # S^{-1/2} = Q * Lambda^{-1/2} * Q^T
+        
+            self.X = np.array([row[:] for row in X_matrix.data]) # Convertir de Matrix a numpy array
+    
     def build_fock_matrix():
         """Construye la matriz Fock usando la matriz de densidad e integrales."""
 
