@@ -4,18 +4,6 @@ import numpy as np
 from jacobi_eigen import jacobi_eigen
 from matrix import Matrix
 
-
-
-basis = [
-   {
-      "coeff": ,
-      "alpha": [a1, a2, a3],
-      "center": np.array([x,y,z]),
-      "norm": N   # lo calculas con una función
-   },
-   ...
-]
-
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
 
