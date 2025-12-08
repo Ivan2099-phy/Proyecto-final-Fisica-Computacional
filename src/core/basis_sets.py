@@ -67,8 +67,6 @@ def STO3G_1s(center):
     
     return np.array(center, dtype=float), primit
 
-
-
 def gauss_cont(r, A, alphas, coeffs, l):
     """
     Devuelve la gaussiana contratada a partir de la primitiva.
