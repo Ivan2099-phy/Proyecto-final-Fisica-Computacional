@@ -154,12 +154,17 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
     """Calcula la integral de repulsión electrónica entre cuatro funciones base usando la forma analítica."""
     p, P = gaussian_product_coef(alpha_p, Ap, alpha_q, Aq)
     q, Q = gaussian_product_coef(alpha_r, Ar, alpha_s, As)
+
+    Rab2 = distance2(Ap, Aq)
+    Rcd2 = distance2(Ar, As)
     RP2 = distance2(P, Q)
+    K_ab = exp(-alpha_p*alpha_q/p * Rab2)
+    K_cd = exp(-alpha_r*alpha_s/q * Rcd2)
+
     t = (p * q) / (p + q) * RP2
     F0 = Function_f0(t)
-    S_pq = overlap_integral_analytical(alpha_p, Ap, alpha_q, Aq)
-    S_rs = overlap_integral_analytical(alpha_r, Ar, alpha_s, As)
-    ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * S_pq * S_rs
+
+    ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * K_ab * K_cd
     return ERI
 
 # ============================================================================
