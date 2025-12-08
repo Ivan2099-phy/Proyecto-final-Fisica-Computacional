@@ -4,6 +4,7 @@ import numpy as np
 from jacobi_eigen import jacobi_eigen
 from matrix import Matrix
 
+# Clase Hartree-Fock
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
 
