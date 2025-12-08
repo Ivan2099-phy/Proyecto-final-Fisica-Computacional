@@ -3,15 +3,30 @@
 class HartreeFockSolver:
     """Clase para implementar el algortimo de Hartree-Fock."""
  
-    def _init_():
-        """
-        Parametros:
-            - basis_set: Conjunto de bases moleculares conocidas.
-            - integrals: Integrales necesarias para cálculos de HF.
-            - n_electrons: Número de electrones en el sistema.
-            - max_iterations: Número máximo de iteraciones SCF.
-            - convergence_threshold: Umbral de convergencia para la energía.
-        """
+    def __init__(self, S, H, G, n_electrons, E_nuc=0.0):
+            """
+            Definimos la clase HartreeFockSolver para sistemas moleculares.
+
+            Parametros:
+            -----------
+                - basis_set: Conjunto de bases moleculares conocidas.
+                - integrals: Integrales necesarias para cálculos de HF.
+                - n_electrons: Número de electrones en el sistema.
+                - max_iterations: Número máximo de iteraciones SCF.
+                - convergence_threshold: Umbral de convergencia para la energía.
+            """
+
+            self.S = S
+            self.H_core = H
+            self.G = G
+            self.n_electrons = n_electrons
+            self.E_nuc = E_nuc
+
+            eigvals, eigvecs = np.linalg.eigh(S)
+            eps_min = 1e-12
+            eigvals = np.where(eigvals < eps_min, eps_min, eigvals)
+            self.X = eigvecs @ np.diag(1/np.sqrt(eigvals)) @ eigvecs.T
+    
     def make_density_matrix()
         """Construye la matriz de densidad a partir de las orbitales moleculares."""
     def build_fock_matrix()
