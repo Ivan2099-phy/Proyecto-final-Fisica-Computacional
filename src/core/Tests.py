@@ -75,3 +75,9 @@ def run_H2(R=1.4):
     print("E obtenido =", E)
     print("E esperado ≈ -1.1175 (ref)")
     print("Error =", abs(E + 1.1175))
+
+# Mostar resultados de las pruebas
+if __name__ == "__main__":
+    run_atom_H()
+    run_atom_He()
+    run_H2(R=1.4)
