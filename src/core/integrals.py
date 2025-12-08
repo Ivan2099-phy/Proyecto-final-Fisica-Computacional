@@ -59,6 +59,8 @@ def gaussian_product_coef(alpha_i, Ai, alpha_j, Aj):
 # F0 función auxiliar para integrales
 def Function_f0(t):
     """Función auxiliar F0(t) usada en integrales electrónicas."""
+    t = float(t) # Asegura que t es un escalar
+    
     if t > 1e-10:
         return 0.5 * sqrt(pi / t) * erf(sqrt(t))
     else:
