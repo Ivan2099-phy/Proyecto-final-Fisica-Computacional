@@ -205,7 +205,7 @@ def _compute_contribution(prims_mu, prims_nu, A, B, centers=None, Zlist=None):
     valS = valT = valV = 0.0
     
     for (a, ca), (b, cb) in product(prims_mu, prims_nu):
-        coeff_product = ca * cb * gaussian_norm(a) * gaussian_norm(b)
+        coeff_product = ca * cb
         valS += coeff_product * overlap_integral_analytical(a, A, b, B)
         valT += coeff_product * kinetic_integral_analytical(a, A, b, B)
         
