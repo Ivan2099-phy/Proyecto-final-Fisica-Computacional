@@ -63,7 +63,7 @@ def STO3G_1s(center):
     primit = []
     
     for alpha, dp in zip(alphas, coeffs):
-        primit.append((float(alpha), float(dp)))
+        primit.append((float(alpha), float(dp * N_gauss(alpha))))
     
     return np.array(center, dtype=float), primit
 
