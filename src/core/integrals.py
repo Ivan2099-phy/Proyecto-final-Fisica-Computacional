@@ -30,8 +30,7 @@ def simpson_3d(f, rmin, rmax, n=100):
 def distance2 (A, B):
     A = np.array(A)
     B = np.array(B)
-    d = A - B
-    return np.dot(d, d)
+    return float(np.dot(A - B, A - B))
 
 # Bases gaussianas
 
