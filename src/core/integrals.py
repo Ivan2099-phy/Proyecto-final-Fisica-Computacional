@@ -165,7 +165,7 @@ def electron_repulsion_integral_analytical(alpha_p, Ap, alpha_q, Aq, alpha_r, Ar
     F0 = Function_f0(t)
 
     ERI = (2 * pi**(5/2)) / (p * q * sqrt(p + q)) * F0 * K_ab * K_cd
-    return ERI
+    return float(ERI)  # Asegura que ERI es un escalar
 
 # ============================================================================
 # Construción de matrices de integrales
@@ -181,13 +181,13 @@ def _compute_contribution(prims_mu, prims_nu, A, B, centers=None, Zlist=None):
     valS = valT = valV = 0.0
     
     for (a, ca), (b, cb) in product(prims_mu, prims_nu):
-        coeff_product = ca * cb
+        coeff_product = ca * cb * gaussian_norm(a) * gaussian_norm(b)
         valS += coeff_product * overlap_integral_analytical(a, A, b, B)
         valT += coeff_product * kinetic_integral_analytical(a, A, b, B)
         
         if centers is not None and Zlist is not None:
             for C, Z in zip(centers, Zlist):
-                valV += coeff_product * nuclear_electron_integral_analytical(a, A, b, B, C, Z)
+                valV += coeff_product * float(nuclear_electron_integral_analytical(a, A, b, B, Z, C))
     
     return valS, valT, valV
 
@@ -215,10 +215,14 @@ def build_one_electron_matrices(basis, centers, Zlist):
 def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
     val = 0.0
     for (a, ca) in prims_mu:
+        Na = gaussian_norm(a)
         for (b, cb) in prims_nu:
+            Nb = gaussian_norm(b)
             for (c, cc) in prims_lam:
+                Nc = gaussian_norm(c)
                 for (d, cd) in prims_sig:
-                    val += ca * cb * cc * cd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
+                    Nd = gaussian_norm(d)
+                    val += ca * cb * cc * cd * Na * Nb * Nc * Nd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
     return val
 
 def build_electron_interact_tensor(basis):
