@@ -168,7 +168,7 @@ def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
     RP2 = distance2(P, RA)
     t = p * RP2
     F0 = Function_f0(t)
-    V_ij = -2 * pi / p * F0 * K_ab
+    V_ij = -2 * pi / p * F0 * K_ab * ZA
     return V_ij
 
 # Integral de repulsión electrónica entre dos pares de funciones base
