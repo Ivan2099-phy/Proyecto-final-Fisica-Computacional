@@ -27,10 +27,21 @@ class HartreeFockSolver:
             eigvals = np.where(eigvals < eps_min, eps_min, eigvals)
             self.X = eigvecs @ np.diag(1/np.sqrt(eigvals)) @ eigvecs.T
     
+    def build_Fock(self, P):
+        """Construye la matriz Fock usando la matriz de densidad e integrales."""
+        n = self.H_core.shape[0] # Número de orbitales base
+        F = self.H_core.copy() # Iniciar Fock con la matriz H
+        for p in range(n):
+            for q in range(n):
+                G_pq = 0.0 # Inicializar la contribución pq
+                for r in range(n):
+                    for s in range(n):
+                        G_pq += P[r,s] * (self.G[p, q, r, s] - 0.5 * self.G[p, s, r, q]) 
+                F[p, q] += G_pq # Añadir la contribución a la matriz de Fock
+        return F
+    
     def make_density_matrix()
         """Construye la matriz de densidad a partir de las orbitales moleculares."""
-    def build_fock_matrix()
-        """Construye la matriz Fock usando la matriz de densidad e integrales."""
     def solve_roothaan_equations()
         """Resuelve las ecuaciones de Roothaan para obtener orbitales moleculares."""
     def scf_cycle()
