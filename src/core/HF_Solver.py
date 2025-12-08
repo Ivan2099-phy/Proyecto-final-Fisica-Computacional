@@ -1,6 +1,7 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
 
+from tabnanny import verbose
 import numpy as np
 
 # Clase Hartree-Fock
@@ -30,6 +31,11 @@ class HartreeFockSolver:
             eps_min = 1e-12
             eigvals = np.where(eigvals < eps_min, eps_min, eigvals)
             self.X = eigvecs @ np.diag(1/np.sqrt(eigvals)) @ eigvecs.T
+
+            # Historial
+            self.energies = []
+            self.densities = []
+            self.iterations = 0
     
     def build_Fock(self, P):
         """Construye la matriz Fock usando la matriz de densidad e integrales."""
@@ -122,7 +128,16 @@ class HartreeFockSolver:
 
         # 2: Construir densidad inicial P
         P = self.build_density_matrix_P(C)
-        E_tot_old = 0.0 # Inicializar energía total 
+        E_tot_old = 0.0 # Inicializar energía total
+
+        self.energies = []
+        self.densities = []
+        self.iterations = 0
+
+        if verbose:
+            print(f"\nIniciando SCF para {self.n_electrons} electrones en {self.n_basis} bases")
+            print(f"{'It':>3} {'E_total':>16} {'ΔE':>16} {'ΔP':>16}")
+            print("-"*60)
     
         # 3: Ciclo SCF
         for iteration in range(max_iter):
@@ -140,11 +155,26 @@ class HartreeFockSolver:
             # Energía electrónica
             E_elec = 0.5 * np.sum(P * (self.H_core + F))  
             E_tot = E_elec + self.E_nuc  # Energía total
-            dE = abs(E_tot - E_tot_old)  # Cambio en energía
+            dE = E_tot - E_tot_old  # Cambio en energía
 
-            if dE < conv and dP < conv:
+            # Guardar historial
+            self.energies.append(E_tot)
+            self.densities.append(dP)
+            self.iterations = iteration
+
+            if verbose:
+                print(f"{iteration:3d} {E_tot:16.10f} {dE:16.10f} {dP:16.10f}")
+            
+            if abs(dE) < conv and dP < conv:
                 print(f"Convergencia alcanzada en {iteration+1} iteraciones.")
                 return E_tot, eps, C, P
             E_tot_old = E_tot
+
+            # guardar resultados
+            self.eps = eps
+            self.C = C
+            self.P = P
+            self.energy = E_tot
+            self.F = F
 
         return E_tot, eps, C, P
