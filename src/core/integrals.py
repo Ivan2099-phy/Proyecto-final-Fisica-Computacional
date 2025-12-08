@@ -239,14 +239,10 @@ def build_one_electron_matrices(basis, centers, Zlist):
 def _eri_contrib(prims_mu, prims_nu, prims_lam, prims_sig, A, B, Cc, D):
     val = 0.0
     for (a, ca) in prims_mu:
-        Na = gaussian_norm(a)
         for (b, cb) in prims_nu:
-            Nb = gaussian_norm(b)
             for (c, cc) in prims_lam:
-                Nc = gaussian_norm(c)
                 for (d, cd) in prims_sig:
-                    Nd = gaussian_norm(d)
-                    val += ca * cb * cc * cd * Na * Nb * Nc * Nd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
+                    val += ca * cb * cc * cd * electron_repulsion_integral_analytical(a, A, b, B, c, Cc, d, D)
     return val
 
 def build_electron_interact_tensor(basis):
