@@ -60,7 +60,7 @@ def gaussian_product_coef(alpha_i, Ai, alpha_j, Aj):
 def Function_f0(t):
     """Función auxiliar F0(t) usada en integrales electrónicas."""
     t = float(t) # Asegura que t es un escalar
-    
+
     if t > 1e-10:
         return 0.5 * sqrt(pi / t) * erf(sqrt(t))
     else:
@@ -84,7 +84,7 @@ def overlap_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
 
 def overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj):
     """Calcula la integral de solapamiento entre dos funciones base usando la forma analítica."""
-    p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
+    p = alpha_i + alpha_j
     Rab2 = distance2(Ai, Aj)
     S_ij = (pi / p)**(3/2) * exp(- ((alpha_i * alpha_j) / p ) * Rab2)
     return S_ij
@@ -102,6 +102,7 @@ def laplacian_gaussian_1s(alpha_j, Aj, X, Y, Z):
     r2 = (X - Ax)**2 + (Y - Ay)**2 + (Z - Az)**2
     gj = gaussian_1s(X,Y,Z,alpha_j, Ax, Ay, Az)
     return (4*alpha_j**2 * r2 - 6*alpha_j) * gj
+
 # Integral cinética
 def kinetic_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
     """Calcula la integral cinética entre dos funciones base."""
@@ -115,7 +116,7 @@ def kinetic_integral(alpha_i, Ai, alpha_j, Aj, rmin=-10, rmax=10, n=100):
 def kinetic_integral_analytical(alpha_i, Ai, alpha_j, Aj):
     """Calcula la integral cinética entre dos funciones base usando la forma analítica."""
     S_ij = overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj)
-    p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
+    p = alpha_i + alpha_j
     Rab2 = distance2(Ai, Aj)
     T_ij = (alpha_i * alpha_j / p) * (3 - (2 * alpha_i * alpha_j / p) * Rab2) * S_ij
     return T_ij
@@ -137,12 +138,13 @@ def nuclear_electron_integral(alpha_i, Ai, alpha_j, Aj, ZA, RA, rmin=-10, rmax=1
 
 def nuclear_electron_integral_analytical(alpha_i, Ai, alpha_j, Aj, ZA, RA):
     """Calcula la integral de atracción nuclear entre dos funciones base usando la forma analítica."""
-    S_ij = overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj)
     p, P = gaussian_product_coef(alpha_i, Ai, alpha_j, Aj)
+    Rab2 = distance2(Ai, Aj)
+    K_ab = exp(-alpha_i*alpha_j/p * Rab2)
     RP2 = distance2(P, RA)
     t = p * RP2
     F0 = Function_f0(t)
-    V_ij = -2 * pi * ZA / p * F0 * S_ij
+    V_ij = -2 * pi / p * F0 * K_ab
     return V_ij
 
 # Integral de repulsión electrónica entre dos pares de funciones base
