@@ -50,8 +50,18 @@ class HartreeFockSolver:
         
             self.X = np.array([row[:] for row in X_matrix.data]) # Convertir de Matrix a numpy array
     
-    def build_fock_matrix():
+    def build_Fock(self, P):
         """Construye la matriz Fock usando la matriz de densidad e integrales."""
+        n = self.H.shape[0] # Número de orbitales base
+        F = self.H.copy() # Iniciar Fock con la matriz H
+        for p in range(n):
+            for q in range(n):
+                G_pq = 0.0 # Inicializar la contribución pq
+                for r in range(n):
+                    for s in range(n):
+                        G_pq += P[r,s] * (self.G[p, q, r, s] - 0.5 * self.G[p, s, r, q]) 
+                F[p, q] += G_pq # Añadir la contribución a la matriz de Fock
+        return F
 
     # Como F = H + Σ P_mv ( <mv|lp> - 0.5*<ml|vp> )
     # Se necesita la matriz de densidad P
