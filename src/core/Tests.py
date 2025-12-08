@@ -43,7 +43,7 @@ def run_atom_He(): # Átomo de helio
 
     HF = HartreeFockSolver(S, Hcore, G, n_electrons=2, E_nuc=0.0)
 
-    E, eps, C, P = HF.scf_cycle(verbose=True) # Energía, orbitales y matriz de densidad *
+    E, eps, C, P = HF.scf_cycle() # Energía, orbitales y matriz de densidad *
 
     print("\n=== ÁTOMO DE HELIO (STO-3G) ===")
     print("E obtenido =", E)
@@ -70,7 +70,7 @@ def run_H2(R=1.4):
     E_nuc = 1.0/R 
     HF = HartreeFockSolver(S, Hcore, G, n_electrons = 2, E_nuc = E_nuc)
 
-    E, eps, C, P = HF.scf_cycle(verbose=True)  # Energía, orbitales y matriz de densidad *
+    E, eps, C, P = HF.scf_cycle()  # Energía, orbitales y matriz de densidad *
 
     print("\n=== MOLÉCULA H2 (STO-3G, R=1.4 bohr) ===")
     print("E obtenido =", E)
