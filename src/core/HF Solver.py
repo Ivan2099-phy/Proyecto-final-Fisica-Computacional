@@ -1,5 +1,8 @@
 # Solver de Hartree-Fock para átomos y moléculas.
 # Ciclo principal de SCF y construcción de matrices Fock.
+import numpy as np
+from jacobi_eigen import jacobi_eigen
+from matrix import Matrix
 
 from jacobi_eigen import jacobi_eigen
 from matrix import Matrix
@@ -57,6 +60,15 @@ class HartreeFockSolver:
                 F[p, q] += G_pq # Añadir la contribución a la matriz de Fock
         return F
 
+            Parametros:
+            -----------
+                - basis_set: Conjunto de bases moleculares conocidas.
+                - integrals: Integrales necesarias para cálculos de HF.
+                - n_electrons: Número de electrones en el sistema.
+                - max_iterations: Número máximo de iteraciones SCF.
+                - convergence_threshold: Umbral de convergencia para la energía.
+            """
+            S_matrix = Matrix(S.tolist()) # Convertir a Matrix (clase implementada en el curso)
 
     def make_density_matrix()
         """Construye la matriz de densidad a partir de las orbitales moleculares."""
