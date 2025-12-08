@@ -67,25 +67,7 @@ def STO3G_1s(center):
     
     return np.array(center, dtype=float), primit
 
-def normal_cont(center_primits):
-    """
-    Normalizar una función contraída.
-    """
-    center, primit = center_primits
-    S_self = 0.0
-    for (ai, di) in primit:
-        Ni = N_gauss(ai)
-        for (aj, dj) in primit:
-            Nj = N_gauss(aj)
-            S_ij = overlapss(ai, center, aj, center)
-            S_self += (di * Ni) * (dj * Nj) * S_ij
 
-    if S_self <= 0:
-        return (center, primit)
-
-    norm = S_self**0.5
-    primit_norm = [(a, d/norm) for (a, d) in primit]
-    return (center, primit_norm)
 
 def gauss_cont(r, A, alphas, coeffs, l):
     """

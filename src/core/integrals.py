@@ -66,6 +66,24 @@ def Function_f0(t):
     else:
         return 1.0  # Aproximación para t cerca de 0
 
+def normal_cont(center_primits):
+    """
+    Normalizar una función contraída.
+    """
+    center, primit = center_primits
+    S_self = 0.0
+    for (ai, ci) in primit:
+        for (aj, cj) in primit:
+            S_ij = overlap_integral_analytical(ai, center, aj, center)
+            S_self += ci * cj * S_ij
+
+    if S_self <= 0:
+        return (center, primit)
+
+    norm = S_self**0.5
+    primit_norm = [(a, d/norm) for (a, d) in primit]
+    return (center, primit_norm)
+
 #============================================================================
 # Integrales necesarias para Hartree-Fock
 #============================================================================
