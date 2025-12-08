@@ -89,6 +89,12 @@ def overlap_integral_analytical(alpha_i, Ai, alpha_j, Aj):
     S_ij = (pi / p)**(3/2) * exp(- ((alpha_i * alpha_j) / p ) * Rab2)
     return S_ij
 
+def overlapss(a, A, b, B):
+    """
+    Calcula el solapamiento entre dos gaussianas primitivas de tipo s.
+    """
+    return overlap_integral_analytical(a, A, b, B)
+
 # Integral cinética T_ij = <chi_i | -1/2 ∇^2 | chi_j>
 # Laplaciano de la función base gaussiana 1s
 # De manera analítica la integral cinética queda:
