@@ -4,7 +4,7 @@ Implementación de un método Hartree-Fock para aproximar soluciones de la ecuac
 El repositorio se encuentra estructurado en este orden como:
 
 
-src/ 
+src/core/
 
 
    basis_sets.py
