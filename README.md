@@ -4,10 +4,20 @@ El repositorio se encuentra estructurado en este orden como:
 
 
 src/ 
+
+
    basis_sets.py
+
+   
    integrals.py
+
+   
    HF_Solver.py // Codigo principal
+
+   
    Test.py
+
+   
    Visializaciones_completas_Proyecto_final_FC.ipynb 
 
 
