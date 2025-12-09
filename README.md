@@ -1,5 +1,6 @@
 # Proyecto-final-Fisica-Computacional
 Implementación de un método Hartree-Fock para aproximar soluciones de la ecuación de Schrodinger para moléculas. 
+
 El repositorio se encuentra estructurado en este orden como:
 
 
