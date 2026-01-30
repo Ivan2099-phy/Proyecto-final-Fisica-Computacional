@@ -1,3 +1,8 @@
+
+<img width="300" height="300" alt="Orbitales2D agua" src="https://github.com/user-attachments/assets/15bd2259-058c-495b-9941-5c25e08041bb" />
+<img width="300" height="300![Uploading Orbitales2D amoniaco agua.png…]()
+" alt="Densidad3D agua" src="https://github.com/user-attachments/assets/2520a6dc-b7f2-4a69-bac1-624a808b099d" />
+
  Proyecto Final: Física Computacional
 
 ## Overview
